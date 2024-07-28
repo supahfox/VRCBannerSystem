@@ -1,10 +1,10 @@
-﻿# VRChat Image Downloading Examples
+﻿# VRCBannerSystem
 
 This is a Unity Example Project that demonstrates some ways that remote images can be downloaded using Udon in VRChat Worlds.
 
 ## Getting Started
 
-Clone or Download this project and open it up in Unity 2019.4.31f1.
+Clone or Download this project and open it up in Unity 2022.3.22f1.
 
 ## Gallery Example
 
