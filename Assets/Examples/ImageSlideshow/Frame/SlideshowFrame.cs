@@ -7,7 +7,7 @@ using VRC.SDKBase;
 using VRC.Udon.Common.Interfaces;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-public class SlideshowFrame : UdonSharpBehaviour
+public class BannerSystem : UdonSharpBehaviour
 {
     [SerializeField, Tooltip("URLs of images to load")]
     private VRCUrl[] imageUrls;
@@ -72,32 +72,20 @@ public class SlideshowFrame : UdonSharpBehaviour
             rgbInfo.GenerateMipMaps = true;
             _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
         }
-        
-        UpdateCaptionText();
     }
 
-    private void UpdateCaptionText()
-    {
-        if (_loadedIndex < _captions.Length)
+        public GameObject loadImage;
+        public bool loadImageButtonClicked;
+        public override void Interact()
         {
-            field.text = _captions[_loadedIndex];
+            loadImageButtonClicked = loadImage.activeSelf;
+            if (loadImageButtonClicked == true){
+                loadImage.SetActive(false);
+            }
+            if (loadImageButtonClicked == false){
+                loadImage.SetActive(true);
+            }
         }
-        else
-        {
-            field.text = "";
-        }
-    }
-
-    public override void OnStringLoadSuccess(IVRCStringDownload result)
-    {
-        _captions = result.Result.Split('\n');
-        UpdateCaptionText();
-    }
-
-    public override void OnStringLoadError(IVRCStringDownload result)
-    {
-        Debug.LogError($"Could not load string {result.Error}");
-    }
 
     public override void OnImageLoadSuccess(IVRCImageDownload result)
     {
