@@ -18,13 +18,13 @@ public class BannerSystem : UdonSharpBehaviour
     [SerializeField, Tooltip("URLs de imágenes a cargar")]
     private VRCUrl[] imageUrls;
     
-    //[SerializeField, Tooltip("URL of text file containing captions for images, one caption per line.")]
+    [SerializeField, Tooltip("URL of text file containing captions for images, one caption per line.")]
     private VRCUrl stringUrl;
     
     [SerializeField, Tooltip("Renderer donde mostrar imágenes descargadas.")]
     private new Renderer renderer;
     
-    //[SerializeField, Tooltip("Text field for captions.")]
+    [SerializeField, Tooltip("Text field for captions.")]
     private Text field;
     
     [SerializeField, Tooltip("Duración en segundos de cada imagen.")]
@@ -85,11 +85,22 @@ public class BannerSystem : UdonSharpBehaviour
     public void LoadImage()
     {
         //Si el botón es presionado, se carga la imagen
-        //if (imageButton.activeSelf)
-        //{
-            _imageDownloader.DownloadImage(imageUrls[0], renderer.material, _udonEventReceiver);
+        // Esto sirve para sincronizar la imagen cargada.
+
+        var nextTexture = _downloadedTextures[0];
+        
+        if (nextTexture != null)
+        {
+            // Si la imagen ya está descargada, no descargarla de nuevo
+            renderer.sharedMaterial.mainTexture = nextTexture;
+        }
+        else
+        {
+            var rgbInfo = new TextureInfo();
+            rgbInfo.GenerateMipMaps = true;
+            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+        }
             Debug.Log("Imagen cargada");
-        //}
     }
 
     //RESYNC
@@ -103,11 +114,22 @@ public class BannerSystem : UdonSharpBehaviour
 
     public void ToggleReSync()
     {
-        //Activar el botón de reSync
-        reSyncButton.SetActive(true);
-        var rgbInfo = new TextureInfo();
-        rgbInfo.GenerateMipMaps = true;
-        _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+        //Si el botón es presionado, se carga la imagen
+        // Esto sirve para sincronizar la imagen cargada.
+
+        var nextTexture = _downloadedTextures[0];
+        
+        if (nextTexture != null)
+        {
+            // Si la imagen ya está descargada, no descargarla de nuevo
+            renderer.sharedMaterial.mainTexture = nextTexture;
+        }
+        else
+        {
+            var rgbInfo = new TextureInfo();
+            rgbInfo.GenerateMipMaps = true;
+            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+        }
         Debug.Log("ReSync activado");
     }
 
@@ -122,11 +144,19 @@ public class BannerSystem : UdonSharpBehaviour
 
     public void ToggleReSyncOnMasterJoin()
     {
-        //Activar el botón de reSync
-        reSyncButton.SetActive(true);
-        var rgbInfo = new TextureInfo();
-        rgbInfo.GenerateMipMaps = true;
-        _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+        var nextTexture = _downloadedTextures[0];
+        
+        if (nextTexture != null)
+        {
+            // Si la imagen ya está descargada, no descargarla de nuevo
+            renderer.sharedMaterial.mainTexture = nextTexture;
+        }
+        else
+        {
+            var rgbInfo = new TextureInfo();
+            rgbInfo.GenerateMipMaps = true;
+            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+        }
         Debug.Log("ReSync activado");
     }
 
