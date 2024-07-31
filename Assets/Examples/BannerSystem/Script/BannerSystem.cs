@@ -25,7 +25,7 @@ public class BannerSystem : UdonSharpBehaviour
     private new Renderer renderer;
     
     //[SerializeField, Tooltip("Text field for captions.")]
-    //private Text field;
+    private Text field;
     
     [SerializeField, Tooltip("Duración en segundos de cada imagen.")]
     private float slideDurationSeconds = 10f;
@@ -80,17 +80,19 @@ public class BannerSystem : UdonSharpBehaviour
         }
     }
 
+    // CARGAR IMAGEN
     public GameObject imageButton;
     public void LoadImage()
     {
         //Si el botón es presionado, se carga la imagen
-        if (imageButton.activeSelf)
-        {
-            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver);
+        //if (imageButton.activeSelf)
+        //{
+            _imageDownloader.DownloadImage(imageUrls[0], renderer.material, _udonEventReceiver);
             Debug.Log("Imagen cargada");
-        }
+        //}
     }
 
+    //RESYNC
     public GameObject reSyncButton;
 
     public void ReSync()
@@ -103,6 +105,9 @@ public class BannerSystem : UdonSharpBehaviour
     {
         //Activar el botón de reSync
         reSyncButton.SetActive(true);
+        var rgbInfo = new TextureInfo();
+        rgbInfo.GenerateMipMaps = true;
+        _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
         Debug.Log("ReSync activado");
     }
 
@@ -119,7 +124,19 @@ public class BannerSystem : UdonSharpBehaviour
     {
         //Activar el botón de reSync
         reSyncButton.SetActive(true);
+        var rgbInfo = new TextureInfo();
+        rgbInfo.GenerateMipMaps = true;
+        _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
         Debug.Log("ReSync activado");
+    }
+
+    //REMOVE IMAGEN
+    public GameObject removeButton;
+
+    public void RemoveImage()
+    {
+        LoadNext();
+        Debug.Log("Imagen removida");
     }
 
     public override void OnImageLoadSuccess(IVRCImageDownload result)
