@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using VRC.SDK3.Image;
 using VRC.SDK3.StringLoading;
 using VRC.SDKBase;
+using VRC.SDK3.Components;
 using VRC.Udon.Common.Interfaces;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
@@ -35,22 +36,14 @@ public class BannerSystem : UdonSharpBehaviour
     private IUdonEventReceiver _udonEventReceiver;
     private string[] _captions = new string[0];
     private Texture2D[] _downloadedTextures;
-    
+    private VRCUrlInputField urlField;
+
     private void Start()
     {
-        // Imágenes descargadas a un array de texturas
         _downloadedTextures = new Texture2D[imageUrls.Length];
-        
-        // VRCImageDownloader a una variable así no recolecto tanta basura xd
         _imageDownloader = new VRCImageDownloader();
-        
-        // Para recibir eventos de carga
         _udonEventReceiver = (IUdonEventReceiver)this;
-        
-        // Captions are downloaded once. On success, OnImageLoadSuccess() will be called. IGNORAR 1ER ARGUMENTO
         VRCStringDownloader.LoadUrl(stringUrl, _udonEventReceiver);
-        
-        // Cargar siguiente imagen indefinidamente
         LoadNextRecursive();
     }
 
@@ -62,14 +55,11 @@ public class BannerSystem : UdonSharpBehaviour
     
     private void LoadNext()
     {
-        // Esto sirve para sincronizar la imagen cargada.
         _loadedIndex = (int)(Networking.GetServerTimeInMilliseconds() / 1000f / slideDurationSeconds) % imageUrls.Length;
-
         var nextTexture = _downloadedTextures[_loadedIndex];
         
         if (nextTexture != null)
         {
-            // Si la imagen ya está descargada, no descargarla de nuevo
             renderer.sharedMaterial.mainTexture = nextTexture;
         }
         else
@@ -80,18 +70,13 @@ public class BannerSystem : UdonSharpBehaviour
         }
     }
 
-    // CARGAR IMAGEN
     public GameObject imageButton;
     public void LoadImage()
     {
-        //Si el botón es presionado, se carga la imagen
-        // Esto sirve para sincronizar la imagen cargada.
-
         var nextTexture = _downloadedTextures[0];
         
         if (nextTexture != null)
         {
-            // Si la imagen ya está descargada, no descargarla de nuevo
             renderer.sharedMaterial.mainTexture = nextTexture;
         }
         else
@@ -100,28 +85,21 @@ public class BannerSystem : UdonSharpBehaviour
             rgbInfo.GenerateMipMaps = true;
             _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
         }
-            Debug.Log("Imagen cargada");
+        Debug.Log("Imagen cargada");
     }
 
-    //RESYNC
     public GameObject reSyncButton;
-
     public void ReSync()
     {
-        //Enviar a todos los miembros de la instancia el evento de reSync
         SendCustomNetworkEvent(NetworkEventTarget.All, "ToggleReSync");
     }
 
     public void ToggleReSync()
     {
-        //Si el botón es presionado, se carga la imagen
-        // Esto sirve para sincronizar la imagen cargada.
-
         var nextTexture = _downloadedTextures[0];
         
         if (nextTexture != null)
         {
-            // Si la imagen ya está descargada, no descargarla de nuevo
             renderer.sharedMaterial.mainTexture = nextTexture;
         }
         else
@@ -137,8 +115,7 @@ public class BannerSystem : UdonSharpBehaviour
     {
         if (Networking.IsMaster)
         {
-            //Si el jugador que se une es el master, activar el botón de reSync
-                SendCustomNetworkEvent(NetworkEventTarget.All, "ToggleReSyncOnMasterJoin");
+            SendCustomNetworkEvent(NetworkEventTarget.All, "ToggleReSyncOnMasterJoin");
         }
     }
 
@@ -148,7 +125,6 @@ public class BannerSystem : UdonSharpBehaviour
         
         if (nextTexture != null)
         {
-            // Si la imagen ya está descargada, no descargarla de nuevo
             renderer.sharedMaterial.mainTexture = nextTexture;
         }
         else
@@ -160,13 +136,25 @@ public class BannerSystem : UdonSharpBehaviour
         Debug.Log("ReSync activado");
     }
 
-    //REMOVE IMAGEN
     public GameObject removeButton;
-
     public void RemoveImage()
     {
         LoadNext();
         Debug.Log("Imagen removida");
+    }
+
+    public void OnURLInput()
+    {
+        showURL(urlField.GetUrl());
+    	urlField.SetUrl(VRCUrl.Empty);
+    }
+
+    public void showURL(VRCUrl url)
+    {
+        var rgbInfo = new TextureInfo();
+        rgbInfo.GenerateMipMaps = true;
+        _imageDownloader.DownloadImage(url, renderer.material, _udonEventReceiver, rgbInfo);
+        Debug.Log($"Loading image from URL: {url}");
     }
 
     public override void OnImageLoadSuccess(IVRCImageDownload result)
@@ -174,6 +162,7 @@ public class BannerSystem : UdonSharpBehaviour
         Debug.Log($"Imagen cargada: {result.SizeInMemoryBytes} bytes.");
         
         _downloadedTextures[_loadedIndex] = result.Result;
+        renderer.sharedMaterial.mainTexture = result.Result;
     }
 
     public override void OnImageLoadError(IVRCImageDownload result)
