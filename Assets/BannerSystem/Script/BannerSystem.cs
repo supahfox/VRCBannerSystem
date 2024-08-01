@@ -145,16 +145,16 @@ public class BannerSystem : UdonSharpBehaviour
 
     public void OnURLInput()
     {
-        showURL(urlField.GetUrl());
+        ShowURL(urlField.GetUrl());
     	urlField.SetUrl(VRCUrl.Empty);
     }
 
-    public void showURL(VRCUrl url)
+    public void ShowURL(VRCUrl url)
     {
         var rgbInfo = new TextureInfo();
         rgbInfo.GenerateMipMaps = true;
         _imageDownloader.DownloadImage(url, renderer.material, _udonEventReceiver, rgbInfo);
-        Debug.Log($"Loading image from URL: {url}");
+        Debug.Log($"Descargando imagen de: {url}");
     }
 
     public override void OnImageLoadSuccess(IVRCImageDownload result)
