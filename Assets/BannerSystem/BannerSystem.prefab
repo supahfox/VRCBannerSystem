@@ -956,16 +956,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 4822871787309189752}
   imageUrls:
-  - url: 
-  - url: 
-  - url: 
-  - url: 
-  - url: 
-  - url: 
-  - url: 
-  - url: 
-  - url: 
-  - url: 
+  - url: https://pbs.twimg.com/media/D7ShRPYXoAA-XXB?format=jpg&name=large
   stringUrl:
     url: 
   renderer: {fileID: 1666915793605624022}
