@@ -139,8 +139,23 @@ public class BannerSystem : UdonSharpBehaviour
     public GameObject removeButton;
     public void RemoveImage()
     {
-        LoadNext();
-        Debug.Log("Imagen removida");
+        //Cuando el botón se presione, pasar a la siguiente imagen
+        _loadedIndex = (_loadedIndex + 1) % imageUrls.Length;
+        
+        var nextTexture = _downloadedTextures[_loadedIndex];
+
+        if (nextTexture != null)
+        {
+            renderer.sharedMaterial.mainTexture = nextTexture;
+        }
+        else
+        {
+            var rgbInfo = new TextureInfo();
+            rgbInfo.GenerateMipMaps = true;
+            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+        }
+
+        Debug.Log("Imagen eliminada");
     }
 
     public void OnURLInput()
@@ -173,5 +188,6 @@ public class BannerSystem : UdonSharpBehaviour
     private void OnDestroy()
     {
         _imageDownloader.Dispose();
+        Debug.Log("BannerSystem destruido.");
     }
 }

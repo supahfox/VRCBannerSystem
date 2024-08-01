@@ -961,10 +961,10 @@ MonoBehaviour:
     url: 
   renderer: {fileID: 1666915793605624022}
   field: {fileID: 0}
-  slideDurationSeconds: 5
-  imageButton: {fileID: 0}
-  reSyncButton: {fileID: 0}
-  removeButton: {fileID: 0}
+  slideDurationSeconds: 30
+  imageButton: {fileID: 3974592718438890885}
+  reSyncButton: {fileID: 8760492488270176137}
+  removeButton: {fileID: 8557382335034051407}
 --- !u!114 &4822871787309189752
 MonoBehaviour:
   m_ObjectHideFlags: 0
