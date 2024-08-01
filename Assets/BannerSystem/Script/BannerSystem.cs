@@ -13,6 +13,8 @@ using VRC.SDKBase;
 using VRC.SDK3.Components;
 using VRC.Udon.Common.Interfaces;
 
+namespace BannerSystem
+{
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class BannerSystem : UdonSharpBehaviour
 {
@@ -190,4 +192,5 @@ public class BannerSystem : UdonSharpBehaviour
         _imageDownloader.Dispose();
         Debug.Log("BannerSystem destruido.");
     }
+}
 }
