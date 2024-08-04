@@ -162,8 +162,10 @@ public class BannerSystem : UdonSharpBehaviour
 
     public void OnURLInput()
     {
-        ShowURL(urlField.GetUrl());
-    	urlField.SetUrl(VRCUrl.Empty);
+        //Función para obtener la URL del InputField del banner
+        var url = urlField.GetUrl();
+        ShowURL(url);
+        Debug.Log("URL ingresada"); 
     }
 
     public void ShowURL(VRCUrl url)
