@@ -160,20 +160,13 @@ public class BannerSystem : UdonSharpBehaviour
         Debug.Log("Imagen eliminada");
     }
 
-    public void OnURLInput()
+    //Función para obtener y cargar la URL del InputField
+    public void urlGet()
     {
-        //Función para obtener la URL del InputField del banner
-        var url = urlField.GetUrl();
-        ShowURL(url);
-        Debug.Log("URL ingresada"); 
-    }
-
-    public void ShowURL(VRCUrl url)
-    {
-        var rgbInfo = new TextureInfo();
-        rgbInfo.GenerateMipMaps = true;
-        _imageDownloader.DownloadImage(url, renderer.material, _udonEventReceiver, rgbInfo);
-        Debug.Log($"Descargando imagen de: {url}");
+        urlField = imageButton.GetComponent<VRCUrlInputField>();
+        imageUrls[0] = urlField.GetUrl();
+        _imageDownloader.DownloadImage(imageUrls[0], renderer.material, _udonEventReceiver);
+        Debug.Log("URL cargada");
     }
 
     public override void OnImageLoadSuccess(IVRCImageDownload result)
