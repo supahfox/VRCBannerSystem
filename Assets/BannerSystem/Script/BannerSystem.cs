@@ -13,179 +13,160 @@ using VRC.SDKBase;
 using VRC.SDK3.Components;
 using VRC.Udon.Common.Interfaces;
 
-namespace BannerSystem
-{
-[UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-public class BannerSystem : UdonSharpBehaviour
-{
-    [SerializeField, Tooltip("URLs de imágenes a cargar")]
-    private VRCUrl[] imageUrls;
-    
-    [SerializeField, Tooltip("URL of text file containing captions for images, one caption per line.")]
-    private VRCUrl stringUrl;
-    
-    [SerializeField, Tooltip("Renderer donde mostrar imágenes descargadas.")]
-    private new Renderer renderer;
-    
-    [SerializeField, Tooltip("Text field for captions.")]
-    private Text field;
-    
-    [SerializeField, Tooltip("Duración en segundos de cada imagen.")]
-    private float slideDurationSeconds = 10f;
-    
-    private int _loadedIndex = -1;
-    private VRCImageDownloader _imageDownloader;
-    private IUdonEventReceiver _udonEventReceiver;
-    private string[] _captions = new string[0];
-    private Texture2D[] _downloadedTextures;
-    private VRCUrlInputField urlField;
-
-    private void Start()
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
+    public class BannerSystem : UdonSharpBehaviour
     {
-        _downloadedTextures = new Texture2D[imageUrls.Length];
-        _imageDownloader = new VRCImageDownloader();
-        _udonEventReceiver = (IUdonEventReceiver)this;
-        VRCStringDownloader.LoadUrl(stringUrl, _udonEventReceiver);
-        LoadNextRecursive();
-    }
-
-    public void LoadNextRecursive()
-    {
-        LoadNext();
-        SendCustomEventDelayedSeconds(nameof(LoadNextRecursive), slideDurationSeconds);
-    }
-    
-    private void LoadNext()
-    {
-        _loadedIndex = (int)(Networking.GetServerTimeInMilliseconds() / 1000f / slideDurationSeconds) % imageUrls.Length;
-        var nextTexture = _downloadedTextures[_loadedIndex];
+        [SerializeField, Tooltip("URLs de imágenes a cargar")]
+        private VRCUrl[] imageUrls;
         
-        if (nextTexture != null)
-        {
-            renderer.sharedMaterial.mainTexture = nextTexture;
-        }
-        else
-        {
-            var rgbInfo = new TextureInfo();
-            rgbInfo.GenerateMipMaps = true;
-            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
-        }
-    }
-
-    public GameObject imageButton;
-    public void LoadImage()
-    {
-        var nextTexture = _downloadedTextures[0];
+        [SerializeField, Tooltip("URL of text file containing captions for images, one caption per line.")]
+        private VRCUrl stringUrl;
         
-        if (nextTexture != null)
-        {
-            renderer.sharedMaterial.mainTexture = nextTexture;
-        }
-        else
-        {
-            var rgbInfo = new TextureInfo();
-            rgbInfo.GenerateMipMaps = true;
-            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
-        }
-        Debug.Log("Imagen cargada");
-    }
-
-    public GameObject reSyncButton;
-    public void ReSync()
-    {
-        SendCustomNetworkEvent(NetworkEventTarget.All, "ToggleReSync");
-    }
-
-    public void ToggleReSync()
-    {
-        var nextTexture = _downloadedTextures[0];
+        [SerializeField, Tooltip("Renderer donde mostrar imágenes descargadas.")]
+        private new Renderer renderer;
         
-        if (nextTexture != null)
-        {
-            renderer.sharedMaterial.mainTexture = nextTexture;
-        }
-        else
-        {
-            var rgbInfo = new TextureInfo();
-            rgbInfo.GenerateMipMaps = true;
-            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
-        }
-        Debug.Log("ReSync activado");
-    }
-
-    public override void OnPlayerJoined(VRCPlayerApi player)
-    {
-        if (Networking.IsMaster)
-        {
-            SendCustomNetworkEvent(NetworkEventTarget.All, "ToggleReSyncOnMasterJoin");
-        }
-    }
-
-    public void ToggleReSyncOnMasterJoin()
-    {
-        var nextTexture = _downloadedTextures[0];
+        [SerializeField, Tooltip("Text field for captions.")]
+        private Text field;
         
-        if (nextTexture != null)
-        {
-            renderer.sharedMaterial.mainTexture = nextTexture;
-        }
-        else
-        {
-            var rgbInfo = new TextureInfo();
-            rgbInfo.GenerateMipMaps = true;
-            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
-        }
-        Debug.Log("ReSync activado");
-    }
-
-    public GameObject removeButton;
-    public void RemoveImage()
-    {
-        //Cuando el botón se presione, pasar a la siguiente imagen
-        _loadedIndex = (_loadedIndex + 1) % imageUrls.Length;
+        [SerializeField, Tooltip("Duración en segundos de cada imagen.")]
+        private float slideDurationSeconds = 10f;
         
-        var nextTexture = _downloadedTextures[_loadedIndex];
+        private int _loadedIndex = -1;
+        private VRCImageDownloader _imageDownloader;
+        private IUdonEventReceiver _udonEventReceiver;
+        private string[] _captions = new string[0];
+        private Texture2D[] _downloadedTextures;
 
-        if (nextTexture != null)
+        [SerializeField]
+        private VRCUrlInputField InputField;
+
+        [UdonSynced, FieldChangeCallback(nameof(SyncedImage))]
+        private bool _syncedToggle;
+
+        private void Start()
         {
-            renderer.sharedMaterial.mainTexture = nextTexture;
+            _downloadedTextures = new Texture2D[imageUrls.Length];
+            _imageDownloader = new VRCImageDownloader();
+            _udonEventReceiver = (IUdonEventReceiver)this;
+            VRCStringDownloader.LoadUrl(stringUrl, _udonEventReceiver);
+            LoadNextRecursive();
         }
-        else
+
+        public void LoadNextRecursive()
         {
-            var rgbInfo = new TextureInfo();
-            rgbInfo.GenerateMipMaps = true;
-            _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+            LoadNext();
+            SendCustomEventDelayedSeconds(nameof(LoadNextRecursive), slideDurationSeconds);
         }
-
-        Debug.Log("Imagen eliminada");
-    }
-
-    //Función para obtener y cargar la URL del InputField
-    public void urlGet()
-    {
-        urlField = imageButton.GetComponent<VRCUrlInputField>();
-        imageUrls[0] = urlField.GetUrl();
-        _imageDownloader.DownloadImage(imageUrls[0], renderer.material, _udonEventReceiver);
-        Debug.Log("URL cargada");
-    }
-
-    public override void OnImageLoadSuccess(IVRCImageDownload result)
-    {
-        Debug.Log($"Imagen cargada: {result.SizeInMemoryBytes} bytes.");
         
-        _downloadedTextures[_loadedIndex] = result.Result;
-        renderer.sharedMaterial.mainTexture = result.Result;
-    }
+        private void LoadNext()
+        {
+            _loadedIndex = (int)(Networking.GetServerTimeInMilliseconds() / 1000f / slideDurationSeconds) % imageUrls.Length;
+            var nextTexture = _downloadedTextures[_loadedIndex];
+            
+            if (nextTexture != null)
+            {
+                renderer.sharedMaterial.mainTexture = nextTexture;
+            }
+            else
+            {
+                var rgbInfo = new TextureInfo();
+                rgbInfo.GenerateMipMaps = true;
+                _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+            }
+        }
+        public void LoadImage()
+        {
+            var nextTexture = _downloadedTextures[0];
+            
+            if (nextTexture != null)
+            {
+                renderer.sharedMaterial.mainTexture = nextTexture;
+            }
+            else
+            {
+                var rgbInfo = new TextureInfo();
+                rgbInfo.GenerateMipMaps = true;
+                _imageDownloader.DownloadImage(imageUrls[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+            }
+            Debug.Log("Imagen cargada");
+        }
 
-    public override void OnImageLoadError(IVRCImageDownload result)
-    {
-        Debug.Log($"Imagen no cargada: {result.Error.ToString()}: {result.ErrorMessage}.");
-    }
+        public GameObject reSyncButton;
+        public bool SyncedImage
+        {
+            //Si alguien le da click al botón, se sincroniza la imagen
+            set
+            {
+                if (value)
+                {
+                    LoadImage();
+                    _syncedToggle = false;
+                }
+            }
+        }
 
-    private void OnDestroy()
-    {
-        _imageDownloader.Dispose();
-        Debug.Log("BannerSystem destruido.");
+        public void ReSync()
+        {
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+            _syncedToggle = true;
+            RequestSerialization();
+            Debug.Log("Imagen sincronizada");
+        }
+
+        public override void OnPlayerJoined(VRCPlayerApi player)
+        {
+            if (Networking.IsMaster)
+            {
+                SendCustomNetworkEvent(NetworkEventTarget.All, "ReSync");
+            }
+        }
+
+        public GameObject removeButton;
+        public void RemoveImage()
+        {
+            //Eliminar todas las imagenes y volver a cargar el array anterior por defecto
+            imageUrls = new VRCUrl[0];
+            _downloadedTextures = new Texture2D[imageUrls.Length];
+            _imageDownloader = new VRCImageDownloader();
+            _udonEventReceiver = (IUdonEventReceiver)this;
+            LoadNextRecursive();
+            Debug.Log("Imagen eliminada");
+        }
+
+        //Función para obtener la URL del InputField
+        public void OnURLInput()
+        {
+            setURL(InputField.GetUrl());
+            InputField.SetUrl(VRCUrl.Empty);
+        }
+
+        public void setURL(VRCUrl url)
+        {
+            // Borrar todo el array y remplazarlo por la imagen cargada
+            imageUrls = new VRCUrl[1];
+            imageUrls[0] = url;
+            _downloadedTextures = new Texture2D[imageUrls.Length];
+            _imageDownloader = new VRCImageDownloader();
+            _udonEventReceiver = (IUdonEventReceiver)this;
+            LoadNextRecursive();
+        }
+
+        public override void OnImageLoadSuccess(IVRCImageDownload result)
+        {
+            Debug.Log($"Imagen cargada: {result.SizeInMemoryBytes} bytes.");
+            
+            _downloadedTextures[_loadedIndex] = result.Result;
+            renderer.sharedMaterial.mainTexture = result.Result;
+        }
+
+        public override void OnImageLoadError(IVRCImageDownload result)
+        {
+            Debug.Log($"Imagen no cargada: {result.Error.ToString()}: {result.ErrorMessage}.");
+        }
+
+        private void OnDestroy()
+        {
+            _imageDownloader.Dispose();
+            Debug.Log("BannerSystem destruido.");
+        }
     }
-}
-}
