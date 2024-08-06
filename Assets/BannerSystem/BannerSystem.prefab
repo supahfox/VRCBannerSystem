@@ -761,14 +761,14 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 4822871787309189752}
-  imageUrls:
-  - url: https://filetandvine.com/wp-content/uploads/2015/07/pix-uploaded-placeholder.jpg
-  - url: https://filetandvine.com/wp-content/uploads/2015/07/pix-uploaded-placeholder.jpgt=jpg&name=large
+  arrayURL: []
+  defaultURL:
+    url: https://dioscarmesi.github.io/Golden%20Midnight/cumple/LonaCumple.png
   stringUrl:
     url: 
   renderer: {fileID: 1666915793605624022}
   field: {fileID: 7379526049786962049}
-  slideDurationSeconds: 30
+  slideDurationSeconds: 1
   InputField: {fileID: 6497982948622866344}
   reSyncButton: {fileID: 8760492488270176137}
   removeButton: {fileID: 8557382335034051407}
