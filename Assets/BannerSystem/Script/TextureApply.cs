@@ -23,9 +23,8 @@ public class LoadingStaticImage : UdonSharpBehaviour
         defaultTexure();
         garbo = gameObject.GetComponent<UdonBehaviour>();
         image = new VRCImageDownloader();
-        TexInf.GenerateMipMaps = true; 
+        TexInf.GenerateMipMaps = true;
         image.DownloadImage(URL, mat, garbo, TexInf);
-        
     }
 
     public override void OnImageLoadError(IVRCImageDownload result)
