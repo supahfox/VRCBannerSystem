@@ -251,19 +251,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: renderer
+      Data: material
     - Name: $v
       Entry: 7
       Data: 16|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: renderer
+      Data: material
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 17|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UnityEngine.Renderer, UnityEngine.CoreModule
+      Data: UnityEngine.Material, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
@@ -299,7 +299,7 @@ MonoBehaviour:
       Data: 20|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: "Renderer donde mostrar im\xE1genes descargadas."
+      Data: "Material donde mostrar im\xE1genes descargadas."
     - Name: 
       Entry: 8
       Data: 

@@ -26,8 +26,8 @@ public class BannerSystem : UdonSharpBehaviour
     [SerializeField, Tooltip("URL of text file containing captions for images, one caption per line.")]
     private VRCUrl stringUrl;
     
-    [SerializeField, Tooltip("Renderer donde mostrar imágenes descargadas.")]
-    private new Renderer renderer;
+    [SerializeField, Tooltip("Material donde mostrar imágenes descargadas.")]
+    private Material material;
     
     [SerializeField, Tooltip("Text field for captions.")]
     private Text field;
@@ -77,13 +77,26 @@ public class BannerSystem : UdonSharpBehaviour
         
         if (nextTexture != null)
         {
-            renderer.sharedMaterial.mainTexture = nextTexture;
+            ApplyTextureToMaterial(nextTexture);
         }
         else
         {
             var rgbInfo = new TextureInfo();
             rgbInfo.GenerateMipMaps = true;
-            _imageDownloader.DownloadImage(arrayURL[_loadedIndex], renderer.material, _udonEventReceiver, rgbInfo);
+            _imageDownloader.DownloadImage(arrayURL[_loadedIndex], material, _udonEventReceiver, rgbInfo);
+        }
+    }
+
+    private void ApplyTextureToMaterial(Texture2D texture)
+    {
+        if (material != null)
+        {
+            material.SetTexture("_MainTex", texture);
+            material.SetTexture("_EmissionMap", texture);
+        }
+        else
+        {
+            Debug.LogError("Material no asignado en el inspector.");
         }
     }
 
@@ -172,7 +185,7 @@ public class BannerSystem : UdonSharpBehaviour
         Debug.Log($"Imagen cargada: {result.SizeInMemoryBytes} bytes.");
         
         _downloadedTextures[_loadedIndex] = result.Result;
-        renderer.sharedMaterial.mainTexture = result.Result;
+        ApplyTextureToMaterial(result.Result);
     }
 
     public override void OnImageLoadError(IVRCImageDownload result)

@@ -766,7 +766,7 @@ MonoBehaviour:
     url: https://dioscarmesi.github.io/Golden%20Midnight/cumple/LonaCumple.png
   stringUrl:
     url: 
-  renderer: {fileID: 1666915793605624022}
+  material: {fileID: 2100000, guid: 90a21debcf76965499131bd63823a420, type: 2}
   field: {fileID: 7379526049786962049}
   slideDurationSeconds: 1
   InputField: {fileID: 6497982948622866344}
